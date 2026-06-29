@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Babão — Eric Inácio</title>
+  <link rel="icon" type="image/jpeg" href="babao.jpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --purple-darkest: #0d0014;
+      --purple-dark:    #1a002e;
+      --purple-mid:     #3b0068;
+      --purple-accent:  #7b2fff;
+      --purple-bright:  #a855f7;
+      --purple-glow:    #c084fc;
+      --minecraft-dirt: #5d3a1a;
+      --minecraft-grass:#4a7c59;
+      --minecraft-stone:#6b7280;
+      --gold:           #fbbf24;
+      --white:          #f5f0ff;
+      --pixel-border:   4px solid var(--purple-accent);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--purple-darkest);
+      color: var(--white);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px;
+      overflow-x: hidden;
+    }
+
+    /* ── PIXEL GRID BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(123,47,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(123,47,255,.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── FLOATING PARTICLES ── */
+    .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .particle {
+      position: absolute;
+      width: 6px; height: 6px;
+      background: var(--purple-accent);
+      image-rendering: pixelated;
+      animation: float-up linear infinite;
+      opacity: 0;
+    }
+    @keyframes float-up {
+      0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10%  { opacity: .8; }
+      90%  { opacity: .5; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ── SCANLINE OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,.08) 2px,
+        rgba(0,0,0,.08) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%;
+      background: rgba(13,0,20,.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 3px solid var(--purple-accent);
+      padding: 12px 24px;
+      display: flex; align-items: center; gap: 24px;
+      z-index: 100;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+    }
+    .nav-logo {
+      color: var(--purple-glow);
+      text-shadow: 0 0 10px var(--purple-accent);
+      margin-right: auto;
+    }
+    .nav-links a {
+      color: var(--purple-bright);
+      text-decoration: none;
+      margin-left: 16px;
+      transition: color .2s, text-shadow .2s;
+    }
+    .nav-links a:hover {
+      color: var(--white);
+      text-shadow: 0 0 8px var(--purple-glow);
+    }
+
+    /* ── SECTIONS ── */
+    section { position: relative; z-index: 1; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+    }
+
+    .hero-avatar-wrapper {
+      position: relative;
+      width: 160px; height: 160px;
+      margin-bottom: 32px;
+    }
+    .hero-avatar-ring {
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      padding: 5px;
+      background: linear-gradient(135deg, var(--purple-accent), var(--purple-glow), var(--gold));
+      animation: glow-pulse 6s ease-in-out infinite;
+      box-shadow: 0 0 40px var(--purple-accent), 0 0 80px rgba(123,47,255,.4);
+    }
+    @keyframes glow-pulse {
+      0%,100% { box-shadow: 0 0 40px var(--purple-accent), 0 0 80px rgba(123,47,255,.4); transform: scale(1); }
+      50% { box-shadow: 0 0 60px var(--purple-glow), 0 0 120px rgba(168,85,247,.6); transform: scale(1.04); }
+    }
+    .hero-avatar-img {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+    .trainer-sprite img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    /* Minecraft pixel avatar placeholder */
+    .avatar-pixel {
+      width: 100px; height: 100px;
+      image-rendering: pixelated;
+      margin: 0 auto 24px;
+      display: grid;
+      grid-template-columns: repeat(8,1fr);
+      grid-template-rows: repeat(8,1fr);
+      border: 4px solid var(--purple-accent);
+      box-shadow: 0 0 20px var(--purple-accent);
+    }
+
+    .hero-tag {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--purple-bright);
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+      animation: blink-text 1.4s step-end infinite;
+    }
+    @keyframes blink-text {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    h1 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(22px, 5vw, 42px);
+      line-height: 1.4;
+      color: var(--white);
+      text-shadow: 0 0 20px var(--purple-glow), 4px 4px 0 var(--purple-mid);
+      margin-bottom: 8px;
+    }
+    h1 span { color: var(--purple-glow); }
+
+    .hero-subtitle {
+      font-family: 'VT323', monospace;
+      font-size: 28px;
+      color: var(--purple-bright);
+      margin-bottom: 32px;
+      letter-spacing: 2px;
+    }
+
+    .hero-stats {
+      display: flex; gap: 32px; flex-wrap: wrap; justify-content: center;
+      margin-bottom: 40px;
+    }
+    .stat-block {
+      background: rgba(59,0,104,.4);
+      border: var(--pixel-border);
+      padding: 16px 24px;
+      text-align: center;
+      clip-path: polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+    }
+    .stat-number {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 20px;
+      color: var(--gold);
+      display: block;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: var(--purple-glow);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .scroll-hint {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--purple-bright);
+      animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    /* ── DIVIDER MINECRAFT ── */
+    .mc-divider {
+      display: flex; align-items: center;
+      padding: 0 24px;
+      margin: 8px 0;
+    }
+    .mc-block {
+      width: 24px; height: 24px;
+      background: var(--purple-mid);
+      border-right: 3px solid var(--purple-bright);
+      border-bottom: 3px solid rgba(0,0,0,.5);
+      image-rendering: pixelated;
+      flex-shrink: 0;
+    }
+    .mc-divider-line {
+      flex: 1;
+      height: 3px;
+      background: linear-gradient(90deg, var(--purple-accent), transparent);
+    }
+
+    /* ── SECTION HEADERS ── */
+    .section-header {
+      text-align: center;
+      padding: 80px 24px 48px;
+    }
+    .section-number {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      color: var(--purple-bright);
+      letter-spacing: 3px;
+      display: block;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(16px, 3vw, 26px);
+      color: var(--white);
+      text-shadow: 3px 3px 0 var(--purple-mid);
+      line-height: 1.5;
+    }
+    h2 .accent { color: var(--purple-glow); }
+
+    /* ── SOBRE MIM ── */
+    #sobre { padding: 0 24px 80px; }
+    .sobre-grid {
+      max-width: 900px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .minecraft-card {
+      background: linear-gradient(135deg, rgba(59,0,104,.6), rgba(13,0,20,.8));
+      border: 3px solid var(--purple-accent);
+      padding: 28px;
+      position: relative;
+      transition: transform .2s, box-shadow .2s;
+      clip-path: polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+    }
+    .minecraft-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(123,47,255,.5);
+    }
+    .card-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .minecraft-card h3 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      color: var(--purple-glow);
+      margin-bottom: 12px;
+    }
+    .minecraft-card p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: rgba(245,240,255,.85);
+    }
+
+    .bio-main {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(59,0,104,.5), rgba(26,0,46,.9));
+      border: 3px solid var(--purple-glow);
+      padding: 36px;
+      position: relative;
+      clip-path: polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px));
+    }
+    .bio-main::before {
+      content: '> STATUS_PROFILE: ACTIVE_NERD';
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--purple-bright);
+      display: block;
+      margin-bottom: 20px;
+      animation: blink-text 1.8s step-end infinite;
+    }
+    .bio-main p {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--white);
+    }
+
+    /* ── HP BAR ── */
+    .hp-section {
+      max-width: 900px; margin: 0 auto 80px;
+      padding: 0 24px;
+    }
+    .hp-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--purple-glow);
+      margin-bottom: 6px;
+      display: flex; justify-content: space-between;
+    }
+    .hp-bar-bg {
+      background: rgba(59,0,104,.4);
+      border: 3px solid var(--purple-accent);
+      height: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hp-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--purple-mid), var(--purple-glow));
+      box-shadow: 0 0 12px var(--purple-accent);
+      transition: width 1.5s ease;
+      animation: hp-shine 2s ease-in-out infinite;
+    }
+    @keyframes hp-shine {
+      0%,100% { opacity: 1; }
+      50% { opacity: .8; }
+    }
+
+    /* ── POKÉMON TYPES BADGES ── */
+    .type-badges {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+      padding: 0 24px 60px;
+      max-width: 700px; margin: 0 auto;
+    }
+    .type-badge {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      padding: 10px 18px;
+      border: 2px solid var(--purple-accent);
+      color: var(--white);
+      background: var(--purple-mid);
+      clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+      cursor: default;
+      transition: background .2s, transform .15s;
+    }
+    .type-badge:hover {
+      background: var(--purple-accent);
+      transform: scale(1.05);
+    }
+
+    /* ── CONTATO ── */
+    #contato { padding: 0 24px 120px; text-align: center; }
+    .contato-desc {
+      font-family: 'VT323', monospace;
+      font-size: 22px;
+      color: var(--purple-bright);
+      max-width: 600px; margin: 0 auto 40px;
+      line-height: 1.5;
+    }
+    .contato-links {
+      display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+    }
+    .contato-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      padding: 16px 28px;
+      border: 3px solid var(--purple-accent);
+      color: var(--white);
+      text-decoration: none;
+      background: transparent;
+      position: relative;
+      transition: background .2s, box-shadow .2s, transform .15s;
+      clip-path: polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+    }
+    .contato-btn:hover {
+      background: var(--purple-accent);
+      box-shadow: 0 0 24px var(--purple-glow);
+      transform: translateY(-3px);
+    }
+    .contato-btn.primary { background: var(--purple-mid); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 3px solid var(--purple-accent);
+      padding: 28px 24px;
+      text-align: center;
+      background: rgba(13,0,20,.95);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--purple-bright);
+      line-height: 2;
+    }
+    footer .footer-title { color: var(--purple-glow); font-size: 11px; margin-bottom: 8px; }
+
+    /* ── TRAINER CARD ── */
+    .trainer-card {
+      max-width: 420px; margin: 0 auto 60px;
+      background: linear-gradient(135deg, var(--purple-mid), var(--purple-dark));
+      border: 4px solid var(--purple-glow);
+      padding: 28px;
+      box-shadow: 0 0 40px rgba(123,47,255,.6), inset 0 0 40px rgba(0,0,0,.3);
+      position: relative;
+      clip-path: polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
+    }
+    .trainer-card::before {
+      content: 'TRAINER CARD';
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--gold);
+      display: block;
+      text-align: center;
+      margin-bottom: 20px;
+      letter-spacing: 4px;
+    }
+    .trainer-info-row {
+      display: flex; gap: 16px; align-items: center; margin-bottom: 12px;
+    }
+    .trainer-sprite {
+      width: 72px; height: 72px;
+      background: var(--purple-dark);
+      border: 3px solid var(--purple-accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      flex-shrink: 0;
+      image-rendering: pixelated;
+    }
+    .trainer-details { flex: 1; }
+    .trainer-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+    .trainer-id {
+      font-family: 'VT323', monospace;
+      font-size: 18px;
+      color: var(--purple-glow);
+    }
+    .trainer-divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--purple-glow), transparent);
+      margin: 16px 0;
+    }
+    .trainer-row {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      display: flex; justify-content: space-between;
+      color: var(--purple-bright);
+      margin-bottom: 8px;
+    }
+    .trainer-row span:last-child { color: var(--white); }
+
+    /* ── MINECRAFT BLOCKS ── */
+    .mc-blocks-row {
+      display: flex; justify-content: center; gap: 8px;
+      padding: 40px 0;
+    }
+    .mc-blk {
+      width: 40px; height: 40px;
+      image-rendering: pixelated;
+      border: 3px solid rgba(0,0,0,.5);
+      animation: mc-bob 2s ease-in-out infinite;
+    }
+    .mc-blk:nth-child(2) { animation-delay: .2s; }
+    .mc-blk:nth-child(3) { animation-delay: .4s; }
+    .mc-blk:nth-child(4) { animation-delay: .6s; }
+    @keyframes mc-bob {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .sobre-grid { grid-template-columns: 1fr; }
+      .bio-main { grid-column: 1; }
+      .nav-links { display: none; }
+      h1 { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">⚡ BABÃO.EXE</span>
+  <div class="nav-links">
+    <a href="#sobre">SOBRE</a>
+    <a href="#atributos">ATRIBUTOS</a>
+    <a href="#contato">CONTATO</a>
+  </div>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<section id="hero">
+
+  <!-- Foto do Babão no hero -->
+  <div class="hero-avatar-wrapper">
+    <div class="hero-avatar-ring">
+      <img class="hero-avatar-img" src="babao.jpg" alt="Eric Inácio — Babão" />
+    </div>
+  </div>
+
+  <p class="hero-tag">▶ NOVO PERSONAGEM ENCONTRADO!</p>
+  <h1>BABÃO<br/><span>ERIC INÁCIO</span></h1>
+  <p class="hero-subtitle">// Nerd · Cristão · Curioso · Determinado //</p>
+
+  <div class="hero-stats">
+    <div class="stat-block">
+      <span class="stat-number">100%</span>
+      <span class="stat-label">Fé em Deus</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-number">∞</span>
+      <span class="stat-label">Curiosidade</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-number">MAX</span>
+      <span class="stat-label">Baba Level</span>
+    </div>
+  </div>
+
+  <p class="scroll-hint">▼ SCROLL PARA EXPLORAR ▼</p>
+</section>
+
+<!-- ══════════ TRAINER CARD ══════════ -->
+<section style="padding: 20px 24px 0; position:relative;z-index:1;">
+  <div class="section-header">
+    <span class="section-number">// 00 //</span>
+    <h2>TRAINER <span class="accent">CARD</span></h2>
+  </div>
+
+  <div class="trainer-card">
+    <div class="trainer-info-row">
+      <div class="trainer-sprite"><img src="babao.jpg" alt="Babão" /></div>
+      <div class="trainer-details">
+        <div class="trainer-name">ERIC INÁCIO</div>
+        <div class="trainer-id">ID Nº 001 — BABÃO</div>
+      </div>
+    </div>
+    <div class="trainer-divider"></div>
+    <div class="trainer-row"><span>APELIDO</span><span>Babão</span></div>
+    <div class="trainer-row"><span>CLASSE</span><span>Curioso Nerd</span></div>
+    <div class="trainer-row"><span>TIPO</span><span>Fé / Conhecimento</span></div>
+    <div class="trainer-row"><span>HABILIDADE</span><span>Baba Infinita</span></div>
+    <div class="trainer-row"><span>STATUS</span><span>🟢 ONLINE</span></div>
+  </div>
+</section>
+
+<!-- ══════════ SOBRE MIM ══════════ -->
+<section id="sobre">
+  <div class="section-header">
+    <span class="section-number">// 01 //</span>
+    <h2>SOBRE <span class="accent">MIM</span></h2>
+  </div>
+
+  <div class="sobre-grid">
+
+    <div class="bio-main">
+      <p>
+        Meu nome é Eric Inácio. Sou uma pessoa curiosa, dedicada e sempre em busca de aprender coisas novas.
+        Minha fé em Deus é muito importante para mim e procuro viver de acordo com os princípios cristãos.
+        Gosto de estudar, enfrentar desafios e crescer como pessoa. Meu objetivo é continuar evoluindo,
+        fortalecer minha fé e usar o que aprendo para fazer a diferença na vida das pessoas.
+      </p>
+    </div>
+
+    <div class="minecraft-card">
+      <span class="card-icon">⛏️</span>
+      <h3>MODO SURVIVAL</h3>
+      <p>Assim como no Minecraft, Eric enfrenta cada desafio da vida no modo Survival — sem trapaça, sem cheat code. Só determinação, fé e criatividade.</p>
+    </div>
+
+    <div class="minecraft-card">
+      <span class="card-icon">⚡</span>
+      <h3>PODER ESPECIAL</h3>
+      <p>Habilidade rara desbloqueada: <strong style="color:var(--purple-glow)">Baba Involuntária Nv.MAX</strong>. Quando menos espera, ativa no meio da conversa. Lendário.</p>
+    </div>
+
+    <div class="minecraft-card">
+      <span class="card-icon">✝️</span>
+      <h3>MISSÃO PRINCIPAL</h3>
+      <p>Fortalecer a fé, crescer como pessoa e usar o conhecimento adquirido para fazer a diferença na vida das pessoas ao redor.</p>
+    </div>
+
+    <div class="minecraft-card">
+      <span class="card-icon">📚</span>
+      <h3>XP COLETANDO</h3>
+      <p>Sempre estudando, sempre evoluindo. Cada novo conhecimento é um bloco de experiência adicionado ao inventário da vida.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ ATRIBUTOS ══════════ -->
+<section id="atributos">
+  <div class="section-header">
+    <span class="section-number">// 02 //</span>
+    <h2>ATRIBUTOS <span class="accent">& STATS</span></h2>
+  </div>
+
+  <div class="hp-section">
+    <div class="hp-label"><span>FÉ EM DEUS</span><span>100 / 100</span></div>
+    <div class="hp-bar-bg"><div class="hp-bar-fill" style="width:100%"></div></div>
+
+    <div class="hp-label"><span>CURIOSIDADE</span><span>98 / 100</span></div>
+    <div class="hp-bar-bg"><div class="hp-bar-fill" style="width:98%"></div></div>
+
+    <div class="hp-label"><span>DEDICAÇÃO</span><span>95 / 100</span></div>
+    <div class="hp-bar-bg"><div class="hp-bar-fill" style="width:95%"></div></div>
+
+    <div class="hp-label"><span>APRENDIZADO</span><span>97 / 100</span></div>
+    <div class="hp-bar-bg"><div class="hp-bar-fill" style="width:97%"></div></div>
+
+    <div class="hp-label"><span>NÍVEL DE BABA</span><span>MAX / MAX</span></div>
+    <div class="hp-bar-bg"><div class="hp-bar-fill" style="width:100%; background: linear-gradient(90deg, #7b2fff, #fbbf24);"></div></div>
+  </div>
+
+  <!-- Tipos pokémon -->
+  <div class="type-badges">
+    <span class="type-badge">⚡ ELÉTRICO</span>
+    <span class="type-badge">🔮 PSÍQUICO</span>
+    <span class="type-badge">✨ NORMAL</span>
+    <span class="type-badge">🌿 GRAMA</span>
+    <span class="type-badge">💜 VENENO</span>
+    <span class="type-badge">🙏 FÉ</span>
+    <span class="type-badge">📖 SÁBIO</span>
+  </div>
+
+  <!-- Blocos minecraft -->
+  <div class="mc-blocks-row">
+    <canvas class="mc-blk" id="block1" width="40" height="40"></canvas>
+    <canvas class="mc-blk" id="block2" width="40" height="40"></canvas>
+    <canvas class="mc-blk" id="block3" width="40" height="40"></canvas>
+    <canvas class="mc-blk" id="block4" width="40" height="40"></canvas>
+  </div>
+</section>
+
+<!-- ══════════ CONTATO ══════════ -->
+<section id="contato">
+  <div class="section-header">
+    <span class="section-number">// 03 //</span>
+    <h2>ESTABELECER <span class="accent">CONEXÃO</span></h2>
+  </div>
+
+  <p class="contato-desc">
+    Os canais estão abertos.<br/>
+    Selecione um protocolo para iniciar sua jornada com o Babão.
+  </p>
+
+  <div class="contato-links">
+    <a class="contato-btn primary" href="#">⚡ PROTOCOLO 01 — DISCORD</a>
+    <a class="contato-btn" href="#">📸 PROTOCOLO 02 — INSTAGRAM</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-title">BABÃO // ERIC INÁCIO</div>
+  © SISTEMA ONLINE // TODOS OS DIREITOS RESERVADOS<br/>
+  <span style="color:var(--purple-accent)">⚡ POKÉMON · ⛏️ MINECRAFT · ✝️ FÉ · 💜 NERDICE</span>
+</footer>
+
+<script>
+  // ── PARTICLES ──
+  (function() {
+    const container = document.getElementById('particles');
+    const colors = ['#7b2fff','#a855f7','#c084fc','#fbbf24'];
+    for (let i = 0; i < 28; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.width = p.style.height = (Math.random() * 8 + 4) + 'px';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (Math.random() * 10 + 8) + 's';
+      p.style.animationDelay = (Math.random() * 10) + 's';
+      container.appendChild(p);
+    }
+  })();
+
+  // ── MINECRAFT PIXEL BLOCKS on canvas ──
+  function drawBlock(id, colors) {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const s = 5; // pixel size
+    colors.forEach((row, y) => {
+      row.forEach((col, x) => {
+        ctx.fillStyle = col;
+        ctx.fillRect(x * s, y * s, s, s);
+      });
+    });
+  }
+
+  const P = '#7b2fff', D = '#3b0068', L = '#c084fc', G = '#fbbf24', B = '#1a002e';
+  const blocks = [
+    [ // purple block
+      [L,L,L,L,L,L,L,L],
+      [L,P,P,P,P,P,P,L],
+      [L,P,D,D,P,D,D,L],
+      [L,P,D,P,P,P,D,L],
+      [L,P,P,P,P,P,P,L],
+      [L,P,D,P,P,D,P,L],
+      [L,P,P,D,D,P,P,L],
+      [L,L,L,L,L,L,L,L],
+    ],
+    [ // gold block
+      [G,G,G,G,G,G,G,G],
+      [G,'#d97706','#d97706','#d97706','#d97706','#d97706','#d97706',G],
+      [G,'#d97706',G,G,'#d97706',G,G,G],
+      [G,'#d97706',G,'#d97706','#d97706','#d97706','#d97706',G],
+      [G,'#d97706','#d97706','#d97706',G,'#d97706','#d97706',G],
+      [G,'#d97706',G,'#d97706','#d97706','#d97706',G,G],
+      [G,'#d97706','#d97706','#d97706','#d97706','#d97706','#d97706',G],
+      [G,G,G,G,G,G,G,G],
+    ],
+    [ // dark purple
+      [D,D,D,D,D,D,D,D],
+      [D,P,P,P,P,P,P,D],
+      [D,P,L,L,P,L,P,D],
+      [D,P,L,P,P,P,P,D],
+      [D,P,P,P,P,P,P,D],
+      [D,P,L,P,L,P,L,D],
+      [D,P,P,P,P,P,P,D],
+      [D,D,D,D,D,D,D,D],
+    ],
+    [ // pokéball mini
+      [B,B,P,P,P,P,B,B],
+      [B,P,P,L,L,P,P,B],
+      [P,P,L,L,L,L,P,P],
+      [P,L,L,L,L,L,L,P],
+      [P,P,P,P,P,P,P,P],
+      [P,L,L,L,L,L,L,P],
+      [B,P,P,L,L,P,P,B],
+      [B,B,P,P,P,P,B,B],
+    ],
+  ];
+  blocks.forEach((b, i) => drawBlock('block' + (i + 1), b));
+
+  // ── HP bar animation on scroll ──
+  const bars = document.querySelectorAll('.hp-bar-fill');
+  const widths = [];
+  bars.forEach(b => {
+    widths.push(b.style.width);
+    b.style.width = '0%';
+  });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        bars.forEach((b, i) => { b.style.width = widths[i]; });
+      }
+    });
+  }, { threshold: 0.3 });
+  if (bars[0]) observer.observe(bars[0].parentElement.parentElement);
+</script>
+</body>
+</html>
